@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS safeRes_restaurant;
+DROP TABLE IF EXISTS saferes_restaurant;

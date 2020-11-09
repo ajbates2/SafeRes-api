@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS safeRes_guest;
+DROP TABLE IF EXISTS saferes_guest;

@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS safeRes_res;
+DROP TABLE IF EXISTS safeRrs_res;

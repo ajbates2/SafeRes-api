@@ -1,5 +1,5 @@
 TRUNCATE
-  safeRes_restaurant,
-  safeRes_guest,
-  safeRes_res
+  saferes_restaurant,
+  saferes_guest,
+  saferes_res
   RESTART IDENTITY CASCADE;
