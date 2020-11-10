@@ -6,6 +6,7 @@ const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
 const authRouter = require('./auth/auth-router')
 const restaurantRouter = require('./restaurant/restaurant-router')
+const resRouter = require('./reservation/reservation-router')
 
 const app = express()
 
@@ -22,6 +23,8 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/auth', authRouter)
+app.use('/api/res', resRouter)
+app.use('/api/restaurant', restaurantRouter)
 
 app.use(function errorHandler(error, req, res, next) {
     let response

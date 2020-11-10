@@ -6,8 +6,11 @@ CREATE TABLE saferes_res (
     party_size INTEGER NOT NULL,
     res_date TIMESTAMP DEFAULT now() NOT NULL,
     res_time TIME NOT NULL,
+    notes TEXT,
     walk_in BOOLEAN DEFAULT false,
     no_show BOOLEAN DEFAULT false,
     arrived BOOLEAN DEFAULT false,
-    notes TEXT
+    cancelled BOOLEAN DEFAULT false,
+    notified BOOLEAN DEFAULT false,
+    waiting BOOLEAN DEFAULT false
 )
