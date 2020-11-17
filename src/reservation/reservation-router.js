@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const ResService = require('./reservation-service')
 const { requireAuth } = require('../middleware/jwt-auth')
+const DailyCountingService = require('../counts/dailyCount-service')
 
 const resRouter = express.Router()
 const jsonBodyParser = express.json()
@@ -28,7 +29,6 @@ resRouter
             .then(resInfo => {
                 res
                     .status(201)
-                    .location(path.posix.join(req.originalUrl, `/${resInfo.id}`))
                     .json(resInfo)
             })
             .catch(next)
@@ -92,9 +92,16 @@ resRouter
             req.params.res_id
         )
             .then(resi => {
-                res.json({
-                    status: `checked off guest with id of ${resi}`
-                })
+                return DailyCountingService.updateHeadCount(
+                    req.app.get('db'),
+                    resi.res_date,
+                    resi.party_size
+                )
+                    .then(resi => {
+                        res.json({
+                            status: `checked off guest with id of ${resi}`
+                        })
+                    })
             })
             .catch(next)
     })
@@ -108,9 +115,8 @@ resRouter
             req.params.res_id
         )
             .then(resi => {
-                console.log(resi)
                 res.json({
-                    status: `guest with id of ${resi} did not show up`
+                    status: `${resi.guest_name} was a no show`
                 })
             })
             .catch(next)
@@ -124,12 +130,10 @@ resRouter
             req.params.res_id
         )
             .then(resi => {
-                console.log(resi)
                 res.json({
-                    status: `guest with id of ${resi} cancelled`
+                    status: `${resi.guest_name} cancelled`
                 })
             })
             .catch(next)
     })
-
 module.exports = resRouter

@@ -1,4 +1,5 @@
 const xss = require('xss')
+const DailyCountingService = require('../counts/dailyCount-service')
 
 const ResService = {
 
@@ -33,9 +34,11 @@ const ResService = {
                 'res.phone_number',
                 'res.party_size',
                 'res.res_time',
-                'res.notes'
+                'res.notes',
+                'res.res_date'
             )
             .where('res.id', res_id)
+            .first()
     },
     insertNewRes(db, resInfo) {
         return db
@@ -43,9 +46,11 @@ const ResService = {
             .into('saferes_res')
             .returning('*')
             .then(([resData]) => resData)
-            .then(resData =>
-                ResService.getByRestaurantId(db, resData.restaurant_id)
-            )
+            .then(resData => {
+                if (resData.walk_in === true) {
+                    return DailyCountingService.incrementWalkIn(db, resData.res_date, resData.party_size)
+                }
+            })
     },
     updateRes(db, res_id, newResInfo) {
         return db
@@ -61,6 +66,7 @@ const ResService = {
             })
             .select('res.guest_name')
             .where('res.id', res_id)
+            .then(resData => { return this.getByResId(db, res_id) })
     },
     updateResNoShow(db, res_id) {
         return db
@@ -69,6 +75,15 @@ const ResService = {
                 no_show: true
             })
             .where('res.id', res_id)
+            .returning('*')
+            .then(resData => {
+                return (
+                    DailyCountingService.incrementNoShow(
+                        db,
+                        resData.res_date)
+                )
+            })
+            .then(() => { return this.getByResId(db, res_id) })
     },
     updateResCancelled(db, res_id) {
         return db
@@ -77,7 +92,16 @@ const ResService = {
                 cancelled: true
             })
             .where('res.id', res_id)
-    },
+            .then(resData => {
+                return (
+                    DailyCountingService.incrementCancelled(
+                        db,
+                        resData.res_date
+                    )
+                )
+            })
+            .then(() => { return this.getByResId(db, res_id) })
+    }
 }
 
 module.exports = ResService

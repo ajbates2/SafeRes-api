@@ -1,7 +1,8 @@
 TRUNCATE
   saferes_restaurant,
   saferes_guest,
-  saferes_res
+  saferes_res,
+  saferes_daily_counts
   RESTART IDENTITY CASCADE;
 
 INSERT INTO saferes_restaurant (restaurant_name, email, password)
@@ -29,3 +30,7 @@ VALUES
   (1, 'Jordan', '612-654-6543', 4, '18:00', 'low top'),
   (1, 'Joffrey', '612-987-9876', 2, '18:00', 'booth'),
   (1, 'Lauren', '612-852-8520', 1, '18:30', 'bar');
+
+INSERT INTO saferes_daily_counts (res_day, res_week, res_month, res_year)
+VALUES 
+  ('3222020', '472020', '112020', '2020');

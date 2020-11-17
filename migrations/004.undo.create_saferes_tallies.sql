@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS saferes_daily_counts;
