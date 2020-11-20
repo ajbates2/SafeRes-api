@@ -7,5 +7,5 @@ CREATE TABLE saferes_guest (
     no_shows INTEGER DEFAULT 0,
     cancellations INTEGER DEFAULT 0,
     date_added TIMESTAMP DEFAULT now() NOT NULL,
-    last_visit TIMESTAMP DEFAULT now() NOT NULL
+    last_visit TEXT
 );

@@ -20,17 +20,17 @@ VALUES
   ('612-987-9876', 'Joffrey', 1),
   ('612-852-8520', 'Lauren', 1);
 
-INSERT INTO saferes_res (restaurant_id, guest_name, phone_number, party_size, res_time, notes)
+INSERT INTO saferes_res (restaurant_id, guest_name, phone_number, party_size, res_time, notes, res_date)
 VALUES
-  (1, 'John', '612-123-1234', 2, '16:00', ''),
-  (1, 'Jeb', '612-789-7890', 2, '16:00', 'bar'),
-  (1, 'Jeff', '612-456-4567', 2, '17:00', 'bar'),
-  (1, 'AJ', '612-743-3196', 2, '17:00', 'bar'),
-  (1, 'Jane', '612-321-3210', 3, '17:30', ''),
-  (1, 'Jordan', '612-654-6543', 4, '18:00', 'low top'),
-  (1, 'Joffrey', '612-987-9876', 2, '18:00', 'booth'),
-  (1, 'Lauren', '612-852-8520', 1, '18:30', 'bar');
+  (1, 'John', '612-123-1234', 2, '16:00', '', '3252020'),
+  (1, 'Jeb', '612-789-7890', 2, '16:00', 'bar', '3252020'),
+  (1, 'Jeff', '612-456-4567', 2, '17:00', 'bar', '3252020'),
+  (1, 'AJ', '612-743-3196', 2, '17:00', 'bar', '3252020'),
+  (1, 'Jane', '612-321-3210', 3, '17:30', '', '3252020'),
+  (1, 'Jordan', '612-654-6543', 4, '18:00', 'low top', '3252020'),
+  (1, 'Joffrey', '612-987-9876', 2, '18:00', 'booth', '3252020'),
+  (1, 'Lauren', '612-852-8520', 1, '18:30', 'bar', '3252020');
 
-INSERT INTO saferes_daily_counts (res_day, res_week, res_month, res_year)
+INSERT INTO saferes_daily_counts (res_day, res_week, res_month, res_year, res_weekday)
 VALUES 
-  ('3222020', '472020', '112020', '2020');
+  ('3252020', '472020', '112020', '2020', '5');

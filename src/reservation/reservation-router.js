@@ -3,6 +3,7 @@ const path = require('path')
 const ResService = require('./reservation-service')
 const { requireAuth } = require('../middleware/jwt-auth')
 const DailyCountingService = require('../counts/dailyCount-service')
+const GuestService = require('../guest/guest-service')
 
 const resRouter = express.Router()
 const jsonBodyParser = express.json()
@@ -11,8 +12,8 @@ resRouter
     .route('/')
     .all(requireAuth)
     .post(jsonBodyParser, (req, res, next) => {
-        const { guest_name, phone_number, party_size, res_time, walk_in, notes } = req.body
-        const newRes = { guest_name, phone_number, party_size, res_time, walk_in, notes }
+        const { guest_name, phone_number, party_size, res_time, walk_in, notes, res_date } = req.body
+        const newRes = { guest_name, phone_number, party_size, res_time, walk_in, notes, res_date }
 
         for (const [key, value] of Object.entries(newRes))
             if (value == null)
@@ -22,25 +23,61 @@ resRouter
 
         newRes.restaurant_id = req.user.id
 
-        ResService.insertNewRes(
+        DailyCountingService.hasDailyCount(
             req.app.get('db'),
-            newRes
+            newRes.res_date
         )
-            .then(resInfo => {
-                res
-                    .status(201)
-                    .json(resInfo)
+            .then(dayExists => {
+                if (!dayExists)
+                    return DailyCountingService.insertDailyCount(
+                        req.app.get('db'),
+                        newRes.res_date
+                    )
             })
-            .catch(next)
+            .then(() => {
+                GuestService.checkIfGuestExists(
+                    req.app.get('db'),
+                    newRes.phone_number
+                )
+                    .then(guestExists => {
+                        if (!guestExists)
+                            GuestService.insertNewGuest(
+                                req.app.get('db'),
+                                newRes,
+                                newRes.restaurant_id
+                            )
+                    })
+                    .then(() => {
+                        ResService.insertNewRes(
+                            req.app.get('db'),
+                            newRes
+                        )
+                            .then(resInfo => {
+                                if (resInfo.walk_in) {
+                                    return GuestService.incrementVisits(
+                                        req.app.get('db'),
+                                        resInfo.phone_number,
+                                        resInfo.res_date
+                                    )
+                                        .then(resInfo => res.status(201)
+                                            .json(resInfo))
+                                }
+                                else res
+                                    .status(201)
+                                    .json(resInfo)
+                            })
+                            .catch(next)
+                    })
+            })
     })
 
 resRouter
-    .route('/all/:restaurant_id')
+    .route('/all')
     .all(requireAuth)
     .get((req, res, next) => {
         ResService.getByRestaurantId(
             req.app.get('db'),
-            req.params.restaurant_id
+            req.user.id
         )
             .then(reservations => {
                 res.json(reservations)
@@ -84,7 +121,7 @@ resRouter
     })
 
 resRouter
-    .route('/:res_id/arrived')
+    .route('/arrived/:res_id')
     .all(requireAuth)
     .patch((req, res, next) => {
         ResService.updateResArrived(
@@ -92,22 +129,32 @@ resRouter
             req.params.res_id
         )
             .then(resi => {
-                return DailyCountingService.updateHeadCount(
-                    req.app.get('db'),
-                    resi.res_date,
-                    resi.party_size
-                )
-                    .then(resi => {
-                        res.json({
-                            status: `checked off guest with id of ${resi}`
-                        })
-                    })
+                Promise.all([
+                    DailyCountingService.updateHeadCount(
+                        req.app.get('db'),
+                        resi.res_date,
+                        resi.party_size
+                    ),
+                    DailyCountingService.incrementUnique(
+                        req.app.get('db'),
+                        resi.res_date,
+                        resi.guest_info.last_visit
+                    ),
+                    GuestService.incrementVisits(
+                        req.app.get('db'),
+                        resi.phone_number,
+                        resi.res_date
+                    )
+                ])
+                res.json({
+                    status: `${resi.guest_name} was checked off`
+                })
             })
             .catch(next)
     })
 
 resRouter
-    .route('/:res_id/no_show')
+    .route('/no_show/:res_id')
     .all(requireAuth)
     .patch((req, res, next) => {
         ResService.updateResNoShow(
@@ -115,14 +162,24 @@ resRouter
             req.params.res_id
         )
             .then(resi => {
+                Promise.all([
+                    DailyCountingService.incrementNoShow(
+                        req.app.get('db'),
+                        resi.res_date
+                    ),
+                    GuestService.incrementNoShows(
+                        req.app.get('db'),
+                        resi.phone_number
+                    )])
                 res.json({
                     status: `${resi.guest_name} was a no show`
                 })
             })
             .catch(next)
     })
+
 resRouter
-    .route('/:res_id/cancel')
+    .route('/cancel/:res_id')
     .all(requireAuth)
     .patch((req, res, next) => {
         ResService.updateResCancelled(
@@ -130,10 +187,34 @@ resRouter
             req.params.res_id
         )
             .then(resi => {
+                Promise.all([
+                    DailyCountingService.incrementCancellations(
+                        req.app.get('db'),
+                        resi.res_date
+                    ),
+                    GuestService.incrementCancellations(
+                        req.app.get('db'),
+                        resi.phone_number
+                    )])
                 res.json({
                     status: `${resi.guest_name} cancelled`
                 })
             })
             .catch(next)
     })
+
+resRouter
+    .route('/day/:res_date')
+    .all(requireAuth)
+    .get((req, res, next) => {
+        ResService.getAllByDate(
+            req.app.get('db'),
+            req.params.res_date
+        )
+            .then(resData => {
+                res.json(resData)
+            })
+            .catch(next)
+    })
+
 module.exports = resRouter

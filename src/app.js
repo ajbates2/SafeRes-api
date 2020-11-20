@@ -8,6 +8,7 @@ const authRouter = require('./auth/auth-router')
 const restaurantRouter = require('./restaurant/restaurant-router')
 const resRouter = require('./reservation/reservation-router')
 const countsRouter = require('./counts/counts-router')
+const guestRouter = require('./guest/guest-router')
 
 const app = express()
 
@@ -27,6 +28,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/res', resRouter)
 app.use('/api/restaurant', restaurantRouter)
 app.use('/api/counts', countsRouter)
+app.use('/api/guest', guestRouter)
 
 app.use(function errorHandler(error, req, res, next) {
     let response

@@ -4,7 +4,7 @@ CREATE TABLE saferes_res (
     guest_name TEXT NOT NULL,
     phone_number TEXT NOT NULL,
     party_size INTEGER NOT NULL,
-    res_date TIMESTAMPTZ DEFAULT now() NOT NULL,
+    res_date TEXT NOT NULL,
     res_time TIME NOT NULL,
     notes TEXT,
     walk_in BOOLEAN DEFAULT false,

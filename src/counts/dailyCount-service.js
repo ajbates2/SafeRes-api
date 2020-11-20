@@ -2,31 +2,30 @@ const moment = require("moment")
 
 const DailyCountingService = {
     hasDailyCount(db, date) {
-        const dateId = moment(date).format('DDDDYYYY')
         return db('saferes_daily_counts')
-            .where({ res_day: dateId })
+            .where({ res_day: date })
             .first()
             .then(day => !!day)
     },
     insertDailyCount(db, date) {
-        const day = moment(date).format('DDDDYYYY')
-        const week = moment(date).format('WWYYYY')
-        const month = moment(date).format('MMYYYY')
-        const year = moment(date).year()
+        const week = moment(date, 'DDDDYYYY').format('WWYYYY')
+        const month = moment(date, 'DDDDYYYY').format('MMYYYY')
+        const year = moment(date, 'DDDDYYYY').year()
+        const weekday = moment(date, 'DDDDYYYY').format('E')
         return db
             .insert({
-                res_day: day,
+                res_day: date,
                 res_week: week,
                 res_month: month,
-                res_year: year
+                res_year: year,
+                res_weekday: weekday
             })
             .into('saferes_daily_counts as daily')
             .returning('*')
-            .whereNot('daily.res_day', day)
+            .whereNot('daily.res_day', date)
             .then(data => data)
     },
     getDailyCount(db, date) {
-        console.log(date)
         return db
             .from('saferes_daily_counts as daily')
             .select(
@@ -39,36 +38,54 @@ const DailyCountingService = {
             )
             .where('daily.res_day', date)
     },
-    updateHeadCount(db, date, party_size) {
-        const day = moment(date).format('DDDDYYYY')
+    getWeeklyCount(db, week) {
         return db
             .from('saferes_daily_counts as daily')
-            .where('daily.res_day', day)
+            .select(
+                'daily.res_day',
+                'daily.unique_guests',
+                'daily.walk_ins',
+                'daily.no_shows',
+                'daily.cancellations',
+                'daily.head_count'
+            )
+            .where('daily.res_week', week)
+    },
+    updateHeadCount(db, date, party_size) {
+        return db
+            .from('saferes_daily_counts as daily')
+            .where('daily.res_day', date)
             .increment({ head_count: party_size })
     },
     incrementWalkIn(db, date, party_size) {
-        const day = moment(date).format('DDDDYYYY')
         return db
             .from('saferes_daily_counts as daily')
-            .where('daily.res_day', day)
+            .where('daily.res_day', date)
             .increment({
                 walk_ins: 1,
                 head_count: party_size
             })
     },
     incrementNoShow(db, date) {
-        const day = moment(date).format('DDDDYYYY')
         return db
             .from('saferes_daily_counts as daily')
-            .where('daily.res_day', day)
+            .where('daily.res_day', date)
             .increment({ no_shows: 1 })
+            .returning('*')
     },
-    incrementCancelled(db, date) {
-        const day = moment(date).format('DDDDYYYY')
+    incrementCancellations(db, date) {
         return db
             .from('saferes_daily_counts as daily')
-            .where('daily.res_day', day)
+            .where('daily.res_day', date)
             .increment({ cancellations: 1 })
+    },
+    incrementUnique(db, date, last_visit) {
+        if (!last_visit) {
+            return db
+                .from('saferes_daily_counts as daily')
+                .where('daily.res_day', date)
+                .increment({ unique_parties: 1 })
+        }
     }
 }
 

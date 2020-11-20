@@ -1,5 +1,6 @@
 const xss = require('xss')
 const DailyCountingService = require('../counts/dailyCount-service')
+const GuestService = require('../guest/guest-service')
 
 const ResService = {
 
@@ -13,10 +14,24 @@ const ResService = {
                 'res.party_size',
                 'res.res_time',
                 'res.notes',
+                db.raw(`
+                    json_build_object(
+                        'id', guest.id,
+                        'visited', guest.times_visited,
+                        'no_shows', guest.no_shows,
+                        'cancellations', guest.cancellations,
+                        'last_visit', guest.last_visit
+                    ) AS "guest_info"`
+                ),
                 'res.waiting',
                 'res.notified'
             )
             .where('res.restaurant_id', restaurant_id)
+            .join(
+                'saferes_guest as guest',
+                'res.phone_number',
+                'guest.phone_number'
+            )
             .whereNot({
                 walk_in: true,
                 no_show: true,
@@ -35,7 +50,23 @@ const ResService = {
                 'res.party_size',
                 'res.res_time',
                 'res.notes',
+                db.raw(`
+                    json_build_object(
+                        'id', guest.id,
+                        'visited', guest.times_visited,
+                        'no_shows', guest.no_shows,
+                        'cancellations', guest.cancellations,
+                        'last_visit', guest.last_visit
+                    ) AS "guest_info"`
+                ),
+                'res.waiting',
+                'res.notified',
                 'res.res_date'
+            )
+            .join(
+                'saferes_guest as guest',
+                'res.phone_number',
+                'guest.phone_number'
             )
             .where('res.id', res_id)
             .first()
@@ -45,11 +76,12 @@ const ResService = {
             .insert(resInfo)
             .into('saferes_res')
             .returning('*')
-            .then(([resData]) => resData)
-            .then(resData => {
+            .then(([resData]) => {
                 if (resData.walk_in === true) {
                     return DailyCountingService.incrementWalkIn(db, resData.res_date, resData.party_size)
+                        .then(() => { return this.getByResId(db, resData.id) })
                 }
+                else return this.getByResId(db, resData.id)
             })
     },
     updateRes(db, res_id, newResInfo) {
@@ -76,13 +108,6 @@ const ResService = {
             })
             .where('res.id', res_id)
             .returning('*')
-            .then(resData => {
-                return (
-                    DailyCountingService.incrementNoShow(
-                        db,
-                        resData.res_date)
-                )
-            })
             .then(() => { return this.getByResId(db, res_id) })
     },
     updateResCancelled(db, res_id) {
@@ -92,15 +117,18 @@ const ResService = {
                 cancelled: true
             })
             .where('res.id', res_id)
-            .then(resData => {
-                return (
-                    DailyCountingService.incrementCancelled(
-                        db,
-                        resData.res_date
-                    )
-                )
-            })
             .then(() => { return this.getByResId(db, res_id) })
+    },
+    getAllByDate(db, date) {
+        return db
+            .from('saferes_res as res')
+            .select('*')
+            .where({ res_date: date })
+            .whereNot({
+                no_show: true,
+                cancelled: true
+            })
+            .orderBy('res.res_time', 'ASC')
     }
 }
 
