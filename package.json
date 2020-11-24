@@ -28,6 +28,7 @@
     "moment": "^2.29.1",
     "morgan": "^1.9.1",
     "pg": "^7.8.0",
+    "phone": "^2.4.17",
     "postgrator-cli": "^3.2.0",
     "twilio": "^3.52.0",
     "winston": "^3.3.3",

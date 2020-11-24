@@ -4,6 +4,7 @@ const ResService = require('./reservation-service')
 const { requireAuth } = require('../middleware/jwt-auth')
 const DailyCountingService = require('../counts/dailyCount-service')
 const GuestService = require('../guest/guest-service')
+const SmsService = require('../sms/sms-service')
 
 const resRouter = express.Router()
 const jsonBodyParser = express.json()
@@ -62,9 +63,12 @@ resRouter
                                         .then(resInfo => res.status(201)
                                             .json(resInfo))
                                 }
-                                else res
-                                    .status(201)
-                                    .json(resInfo)
+                                else {
+                                    SmsService.reservationSms(resInfo)
+                                    res
+                                        .status(201)
+                                        .json(resInfo)
+                                }
                             })
                             .catch(next)
                     })

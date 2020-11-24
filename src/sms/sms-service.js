@@ -1,4 +1,6 @@
+const phone = require("phone");
 const config = require("../config")
+const moment = require("moment")
 
 const accountSid = config.TWILIO_ACCOUNT_SID
 const authToken = config.TWILIO_AUTH_TOKEN
@@ -23,6 +25,14 @@ const SmsService = {
                 notified: true
             })
             .where('res.id', res_id)
+    },
+    reservationSms(resData) {
+        return client.messages
+            .create({
+                body: `Hi ${resData.guest_name}!, we are excited to see you at ${moment(resData.res_time, 'HH:mm:SS').format('hh:mm a')}, don't forget to bring your mask!`,
+                from: twilioPhone,
+                to: phone(resData.phone_number)[0]
+            })
     }
 }
 

@@ -1,7 +1,6 @@
 const express = require('express')
 const { requireAuth } = require('../middleware/jwt-auth');
 const SmsService = require('./sms-service');
-const MessagingResponse = require('twilio').twiml.MessagingResponse;
 
 const smsRouter = express.Router()
 const jsonBodyParser = express.json()
