@@ -126,6 +126,15 @@ const ResService = {
             .where('res.id', res_id)
             .then(() => { return this.getByResId(db, res_id) })
     },
+    updateResWaiting(db, res_id) {
+        return db
+            .from('saferes_res as res')
+            .update({
+                waiting: true
+            })
+            .where('res.id', res_id)
+            .then(() => { return this.getByResId(db, res_id) })
+    },
     getAllByDate(db, date) {
         return db
             .from('saferes_res as res')

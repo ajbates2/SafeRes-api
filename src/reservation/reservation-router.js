@@ -206,6 +206,22 @@ resRouter
     })
 
 resRouter
+    .route('/waiting/:res_id')
+    .all(requireAuth)
+    .patch((req, res, next) => {
+        ResService.updateResWaiting(
+            req.app.get('db'),
+            req.params.res_id
+        )
+            .then(resi => {
+                res.json({
+                    status: `${resi.guest_name} is waiting`
+                })
+            })
+            .catch(next)
+    })
+
+resRouter
     .route('/day/:res_date')
     .all(requireAuth)
     .get((req, res, next) => {
