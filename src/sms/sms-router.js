@@ -7,7 +7,7 @@ const smsRouter = express.Router()
 const jsonBodyParser = express.json()
 
 smsRouter
-    .route('/:phone_number')
+    .route('/notify/:phone_number')
     .all(requireAuth)
     .post(jsonBodyParser, (req, res, next) => {
         const { guest_name, res_id } = req.body
