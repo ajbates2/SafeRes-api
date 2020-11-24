@@ -30,7 +30,7 @@ const DailyCountingService = {
             .from('saferes_daily_counts as daily')
             .select(
                 'daily.res_day',
-                'daily.unique_guests',
+                'daily.unique_parties',
                 'daily.walk_ins',
                 'daily.no_shows',
                 'daily.cancellations',

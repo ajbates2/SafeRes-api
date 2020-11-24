@@ -20,11 +20,11 @@ countsRouter
                         req.params.res_day
                     )
                         .then(resData => {
-                            res.json(resData).status(201)
+                            res.json(resData[0]).status(201)
                         })
                 }
                 else {
-                    res.json(resData).status(200)
+                    res.json(resData[0]).status(200)
                 }
             })
             .catch(next)

@@ -87,8 +87,15 @@ const ResService = {
     updateRes(db, res_id, newResInfo) {
         return db
             .from('saferes_res as res')
+            .update({
+                guest_name: newResInfo.guest_name,
+                phone_number: newResInfo.phone_number,
+                party_size: newResInfo.party_size,
+                res_time: newResInfo.res_time,
+                notes: newResInfo.notes
+            })
             .where('res.id', res_id)
-            .update(newResInfo)
+            .then(() => { return this.getByResId(db, res_id) })
     },
     updateResArrived(db, res_id) {
         return db

@@ -115,7 +115,9 @@ resRouter
             resToUpdate
         )
             .then(updatedRes => {
-                res.status(204).end()
+                res
+                    .json({ status: `${updatedRes.guest_name} was updated` })
+                    .status(204)
             })
             .catch(next)
     })
