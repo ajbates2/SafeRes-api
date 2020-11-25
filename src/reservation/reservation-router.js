@@ -1,5 +1,4 @@
 const express = require('express')
-const path = require('path')
 const ResService = require('./reservation-service')
 const { requireAuth } = require('../middleware/jwt-auth')
 const DailyCountingService = require('../counts/dailyCount-service')
@@ -58,7 +57,8 @@ resRouter
                                     return GuestService.incrementVisits(
                                         req.app.get('db'),
                                         resInfo.phone_number,
-                                        resInfo.res_date
+                                        resInfo.res_date,
+                                        newRes.restaurant_id
                                     )
                                         .then(resInfo => res.status(201)
                                             .json(resInfo))
@@ -121,7 +121,7 @@ resRouter
             .then(updatedRes => {
                 res
                     .json({ status: `${updatedRes.guest_name} was updated` })
-                    .status(204)
+                    .status(200)
             })
             .catch(next)
     })
@@ -130,6 +130,7 @@ resRouter
     .route('/arrived/:res_id')
     .all(requireAuth)
     .patch((req, res, next) => {
+        const restaurant_id = req.user.id
         ResService.updateResArrived(
             req.app.get('db'),
             req.params.res_id
@@ -139,17 +140,19 @@ resRouter
                     DailyCountingService.updateHeadCount(
                         req.app.get('db'),
                         resi.res_date,
-                        resi.party_size
+                        resi.party_size,
+                        restaurant_id
                     ),
                     DailyCountingService.incrementUnique(
                         req.app.get('db'),
                         resi.res_date,
-                        resi.guest_info.last_visit
+                        resi.guest_info.last_visit,
+                        restaurant_id
                     ),
                     GuestService.incrementVisits(
                         req.app.get('db'),
                         resi.phone_number,
-                        resi.res_date
+                        resi.res_date,
                     )
                 ])
                 res.json({
@@ -171,7 +174,8 @@ resRouter
                 Promise.all([
                     DailyCountingService.incrementNoShow(
                         req.app.get('db'),
-                        resi.res_date
+                        resi.res_date,
+                        req.user.id
                     ),
                     GuestService.incrementNoShows(
                         req.app.get('db'),
@@ -196,7 +200,8 @@ resRouter
                 Promise.all([
                     DailyCountingService.incrementCancellations(
                         req.app.get('db'),
-                        resi.res_date
+                        resi.res_date,
+                        req.user.id
                     ),
                     GuestService.incrementCancellations(
                         req.app.get('db'),

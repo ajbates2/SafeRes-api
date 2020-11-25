@@ -31,6 +31,6 @@ VALUES
   (1, 'Joffrey', '612-987-9876', 2, '18:00', 'booth', '3282020'),
   (1, 'Lauren', '612-852-8520', 1, '18:30', 'bar', '3282020');
 
-INSERT INTO saferes_daily_counts (res_day, res_week, res_month, res_year, res_weekday)
+INSERT INTO saferes_daily_counts (restaurant_id, res_day, res_week, res_month, res_year, res_weekday)
 VALUES 
-  ('3282020', '472020', '112020', '2020', '1');
+  (1, '3282020', '472020', '112020', '2020', '1');

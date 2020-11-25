@@ -9,15 +9,18 @@ countsRouter
     .route('/day/:res_day')
     .all(requireAuth)
     .get((req, res, next) => {
+        const restaurant_id = req.user.id
         DailyCountingService.getDailyCount(
             req.app.get('db'),
-            req.params.res_day
+            req.params.res_day,
+            restaurant_id
         )
             .then(resData => {
                 if (!resData.length) {
                     return DailyCountingService.insertDailyCount(
                         req.app.get('db'),
-                        req.params.res_day
+                        req.params.res_day,
+                        restaurant_id
                     )
                         .then(resData => {
                             res.json(resData[0]).status(201)
@@ -36,7 +39,8 @@ countsRouter
     .get((req, res, next) => {
         DailyCountingService.getWeeklyCount(
             req.app.get('db'),
-            req.params.res_week
+            req.params.res_week,
+            restaurant_id
         )
             .then(resData => {
                 if (!resData.length) {
@@ -48,7 +52,6 @@ countsRouter
                     res.json(resData).status(200)
                 }
             })
-
             .catch(next)
     })
 

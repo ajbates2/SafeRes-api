@@ -18,6 +18,7 @@ guestRouter
                     .json(guestData)
                     .status(200)
             })
+            .catch(next)
     })
 
 module.exports = guestRouter
