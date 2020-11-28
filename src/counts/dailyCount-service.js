@@ -99,7 +99,7 @@ const DailyCountingService = {
             .increment({ cancellations: 1 })
     },
     incrementUnique(db, date, last_visit, restaurant_id) {
-        if (!last_visit) {
+        if (last_visit === null) {
             return db
                 .from('saferes_daily_counts as daily')
                 .where({

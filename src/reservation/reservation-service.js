@@ -78,7 +78,7 @@ const ResService = {
             .returning('*')
             .then(([resData]) => {
                 if (resData.walk_in === true) {
-                    return DailyCountingService.incrementWalkIn(db, resData.res_date, resData.party_size)
+                    return DailyCountingService.incrementWalkIn(db, resData.res_date, resData.party_size, resData.restaurant_id)
                         .then(() => { return this.getByResId(db, resData.id) })
                 }
                 else return this.getByResId(db, resData.id)
