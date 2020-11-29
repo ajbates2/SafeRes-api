@@ -7,6 +7,7 @@ const AuthService = {
         return db('saferes_restaurant')
             .where({ email })
             .first()
+            .returning('*')
     },
 
     comparePasswords(password, hash) {
