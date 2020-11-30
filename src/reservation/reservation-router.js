@@ -113,17 +113,32 @@ resRouter
                     error: `Missing '${key}' in request body`
                 })
 
-        ResService.updateRes(
+        resToUpdate.id = Number(req.params.res_id)
+
+        GuestService.checkIfGuestExists(
             req.app.get('db'),
-            req.params.res_id,
-            resToUpdate
+            resToUpdate.phone_number
         )
-            .then(updatedRes => {
-                res
-                    .json({ status: `${updatedRes.guest_name} was updated` })
-                    .status(200)
+            .then(guestExists => {
+                if (!guestExists)
+                    GuestService.insertNewGuest(
+                        req.app.get('db'),
+                        resToUpdate,
+                        req.user.id
+                    )
             })
-            .catch(next)
+            .then(() => {
+                ResService.updateRes(
+                    req.app.get('db'),
+                    resToUpdate
+                )
+                    .then(updatedRes => {
+                        res
+                            .json({ status: `${updatedRes.guest_name} was updated` })
+                            .status(200)
+                    })
+                    .catch(next)
+            })
     })
 
 resRouter

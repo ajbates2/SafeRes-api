@@ -1,6 +1,7 @@
 const xss = require('xss')
 const DailyCountingService = require('../counts/dailyCount-service')
 const GuestService = require('../guest/guest-service')
+const { patch } = require('./reservation-router')
 
 const ResService = {
 
@@ -70,6 +71,7 @@ const ResService = {
             )
             .where('res.id', res_id)
             .first()
+            .then(data => data)
     },
     insertNewRes(db, resInfo) {
         return db
@@ -84,18 +86,20 @@ const ResService = {
                 else return this.getByResId(db, resData.id)
             })
     },
-    updateRes(db, res_id, newResInfo) {
+    updateRes(db, patchedRes) {
+        const oldRes = this.getByResId(db, patchedRes.id)
+        console.log(oldRes.phone_number)
         return db
             .from('saferes_res as res')
             .update({
-                guest_name: newResInfo.guest_name,
-                phone_number: newResInfo.phone_number,
-                party_size: newResInfo.party_size,
-                res_time: newResInfo.res_time,
-                notes: newResInfo.notes
+                guest_name: patchedRes.guest_name,
+                phone_number: patchedRes.phone_number,
+                party_size: patchedRes.party_size,
+                res_time: patchedRes.res_time,
+                notes: patchedRes.notes
             })
-            .where('res.id', res_id)
-            .then(() => { return this.getByResId(db, res_id) })
+            .where('res.id', patchedRes.id)
+            .then(() => { return this.getByResId(db, patchedRes.id) })
     },
     updateResArrived(db, res_id) {
         return db
