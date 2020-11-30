@@ -64,7 +64,7 @@ resRouter
                                             .json(resInfo))
                                 }
                                 else {
-                                    // SmsService.reservationSms(resInfo)
+                                    SmsService.reservationSms(resInfo)
                                     res
                                         .status(201)
                                         .json(resInfo)
