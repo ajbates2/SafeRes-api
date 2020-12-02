@@ -8,9 +8,9 @@ API server for 'SafeRes' project
 
 Demo account: { email: 'foo@bar.com' password: 'password' }
 
-# Endpoints
+## Endpoints
 
- ## `/res`
+### `/res`
 
 Only a POST request is handled at this endpoint, but a single post requests handles multiple tasks.
 
@@ -20,35 +20,39 @@ Only a POST request is handled at this endpoint, but a single post requests hand
     * If res is a walk in, it updates the daily head count, walk in total, and updates the guest data's visit count and updates last visit
     * If res is not a walk in, an sms is sent to the future guest
 
-    ### `/res/all`
+    #### `/res/all`
 
     Gets all remaining reservations for the day
 
-    ### `/res/:res_id`
+    #### `/res/:res_id`
 
     Mainly used as patch request if info is inserted incorrectly or guest calls back and changes res time or party size
 
-    ### `/res/<arrived || no_show || cancel || no_show>/:res_id`
+    #### `/res/<arrived || no_show || cancel || no_show>/:res_id`
 
     4 different patch requests that updates the requested boolean field
 
-## `/counts/day/:res_day`
+### `/counts/`
 
-GET request for the daily res counts, it first checks if the day exists
+  #### `/counts/day/:res_day`
+
+  GET request for the daily res counts, it first checks if the day exists
     
-* if it doesn't exist, inserts new daily count
-* then sends daily data
+  * if it doesn't exist, inserts new daily count
+  * then sends daily data
 
-## `/sms/notify/:phone_number`
+### `/sms`
+
+  #### `/sms/notify/:phone_number`
     
-1. First patches the notified boolean field on the reservation to true
-2. Then, sends guest sms notification that table is ready
+  1. First patches the notified boolean field on the reservation to true
+  2. Then, sends guest sms notification that table is ready
 
-## `/auth`
+### `/auth`
 
 Posts login requests, passes restaurant id and name to local storage
 
-# Set up
+## Set up
 
 Major dependencies for this repo include Postgres, Node, and Twilio
 
@@ -76,9 +80,9 @@ TWILIO_NUMBER=<YOUR_TWILIO_NUMBER>
 6. `npm t` runs tests
 7. `npm run dev` starts app in dev mode
 
-# Technology Used
+## Technology Used
 
-## Back End
+### Back End
 
 * Node and Express
   * Authentication via JWT
@@ -91,6 +95,6 @@ TWILIO_NUMBER=<YOUR_TWILIO_NUMBER>
   * Postgres
   * Knex.js - SQL wrapper
 
-## Production
+### Production
 
 Deployed via Heroku
