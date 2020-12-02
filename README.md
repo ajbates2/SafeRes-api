@@ -32,25 +32,25 @@ Only a POST request is handled at this endpoint, but a single post requests hand
 
     4 different patch requests that updates the requested boolean field
 
-  ### `/counts/`
+### `/counts/`
 
-    #### `/counts/day/:res_day`
+  #### `/counts/day/:res_day`
 
-    GET request for the daily res counts, it first checks if the day exists
+  GET request for the daily res counts, it first checks if the day exists
     
-    * if it doesn't exist, inserts new daily count
-    * then sends daily data
+  * if it doesn't exist, inserts new daily count
+  * then sends daily data
 
-  ### `/sms`
+### `/sms`
 
-   #### `/sms/notify/:phone_number`
+  #### `/sms/notify/:phone_number`
     
-   1. First patches the notified boolean field on the reservation to true
-    2. Then, sends guest sms notification that table is ready
+  1. First patches the notified boolean field on the reservation to true
+  2. Then, sends guest sms notification that table is ready
 
-  ### `/auth`
+### `/auth`
 
-  Posts login requests, passes restaurant id and name to local storage
+Posts login requests, passes restaurant id and name to local storage
 
 ## Set up
 
