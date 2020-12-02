@@ -50,7 +50,9 @@ Only a POST request is handled at this endpoint, but a single post requests hand
 
 ### `/auth`
 
-Posts login requests, passes restaurant id and name to local storage
+  #### `/auth/loigin`
+
+  Posts login requests, passes restaurant id and name to local storage
 
 ## Set up
 
