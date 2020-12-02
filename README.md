@@ -1,32 +1,96 @@
-# Express Boilerplate!
+# SafeRes API
 
-This is a boilerplate project used for starting new projects!
+API server for 'SafeRes project
 
-## Set up
+<a href='https://github.com/ajbates2/SafeRes-client' target='_blank'>SafeRes Client Repo</a>
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME):
+<a href='https://safe-res-client.vercel.app/' target='_blank'>Live App</a>
 
-1. Clone this repository to your local machine `git clone BOILERPLATE-URL NEW-PROJECTS-NAME`
-2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git && git init`
-4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name": "express-boilerplate",`
-7. Update `DB_URL`  in `.env` and `config.js`
-8. .sql files in migrations and seeds directories are only examples, update for new database and tables.
+Demo account: { email: 'foo@bar.com' password: 'password' }
 
-## Scripts
+# Endpoints
 
-Start the application `npm start`
+ ## `/res`
 
-Start nodemon for the application `npm run dev`
+Only a POST request is handled at this endpoint, but a single post requests handles multiple tasks.
 
-Run the tests `npm test`
+1. Checks if there is daily count for the day, if not it creates one.
+2. Then, checks if the guest exists in our database, if not it creates one.
+3. Then it inserts the new res
+    * If res is a walk in, it updates the daily head count, walk in total, and updates the guest data's visit count and updates last visit
+    * If res is not a walk in, an sms is sent to the future guest
 
-Create Database (use command prompt) `createdb -U USERNAME DBNAME`
+    ### `/res/all`
 
-Add file to database `psql -U USERNAME -d DBNAME -f FILEPATH`
+    Gets all remaining reservations for the day
 
-## Deploying
+    ### `/res/:res_id`
 
-When your new project is ready for deployment, add a new Heroku application with `heroku create`. This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's master branch.
+    Mainly used as patch request if info is inserted incorrectly or guest calls back and changes res time or party size
+
+    ### `/res/<arrived || no_show || cancel || no_show>/:res_id`
+
+    4 different patch requests that updates the requested boolean field
+
+## `/counts/day/:res_day`
+
+GET request for the daily res counts, it first checks if the day exists
+    
+* if it doesn't exist, inserts new daily count
+* then sends daily data
+
+## `/sms/notify/:phone_number`
+    
+1. First patches the notified boolean field on the reservation to true
+2. Then, sends guest sms notification that table is ready
+
+## `/auth`
+
+Posts login requests, passes restaurant id and name to local storage
+
+# Set up
+
+Major dependencies for this repo include Postgres, Node, and Twilio
+
+To get set up locally do the following
+1. Clone this repo to your machine, cd into the dir and run npm install
+2. Create the dev and test DB's `createdb -U <DB-USER> -d SafeRes` and `createdb -U <DB-USER> -d SafeRes-test`
+3. create an .env file in root project with the following
+4. Twilio has a free tier that allows you to send texts to a single phone number
+
+````
+NODE_ENV=development
+PORT=8000
+API_TOKEN=3bbc6278-af64-11ea-b3de-0242ac130004
+DATABASE_URL="postgresql://<DB-USER>:<PASSWORD>@localhost/saferes"
+TEST_DATABASE_URL="postgresql://<DB-USER>:<PASSWORD>@localhost/saferes-test"
+JWT_SECRET="its-corona-time"
+TZ="America/Chicago"
+TWILIO_ACCOUNT_SID=<YOUR_ACCOUNT_ID>
+TWILIO_AUTH_TOKEN=<YOUR_AUTH_TOKEN>
+TWILIO_NUMBER=<YOUR_TWILIO_NUMBER>
+````
+
+4. Run migrations for dev and test `npm run migrate` and `npm run migrate:test`
+5. Seed the database for dev `psql -U <DB-USER> -d tips -f ./seeds/seed.safeRes.sql`
+6. `npm t` runs tests
+7. `npm run dev` starts app in dev mode
+
+# Technology Used
+
+## Back End
+
+* Node and Express
+  * Authentication via JWT
+  * RESTful Api
+  * Twilio SMS
+* Testing
+  * Supertest (integration)
+  * Mocha and Chai (unit)
+* Database
+  * Postgres
+  * Knex.js - SQL wrapper
+
+## Production
+
+Deployed via Heroku

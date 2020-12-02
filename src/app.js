@@ -7,7 +7,6 @@ const { NODE_ENV } = require('./config')
 const authRouter = require('./auth/auth-router')
 const resRouter = require('./reservation/reservation-router')
 const countsRouter = require('./counts/counts-router')
-const guestRouter = require('./guest/guest-router')
 const smsRouter = require('./sms/sms-router')
 
 const app = express()
@@ -27,7 +26,6 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRouter)
 app.use('/api/res', resRouter)
 app.use('/api/counts', countsRouter)
-app.use('/api/guest', guestRouter)
 app.use('/api/sms', smsRouter)
 
 app.use(function errorHandler(error, req, res, next) {

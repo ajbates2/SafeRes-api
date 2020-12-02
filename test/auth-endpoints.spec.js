@@ -72,7 +72,10 @@ describe('Auth Endpoints', function () {
                 password: testRestaurant.password,
             }
             const expectedToken = jwt.sign(
-                { restaurant_id: testRestaurant.id }, // payload
+                {
+                    restaurant_id: testRestaurant.id,
+                    restaurant_name: testRestaurant.restaurant_name
+                }, // payload
                 process.env.JWT_SECRET,
                 {
                     subject: testRestaurant.email,
