@@ -32,7 +32,7 @@ Only a POST request is handled at this endpoint, but a single post requests hand
 
     4 different patch requests that updates the requested boolean field
 
-### `/counts/`
+### `/counts`
 
   #### `/counts/day/:res_day`
 
@@ -41,7 +41,7 @@ Only a POST request is handled at this endpoint, but a single post requests hand
   * if it doesn't exist, inserts new daily count
   * then sends daily data
 
-### `/sms`
+  ### `/sms`
 
   #### `/sms/notify/:phone_number`
     
@@ -50,7 +50,7 @@ Only a POST request is handled at this endpoint, but a single post requests hand
 
 ### `/auth`
 
-  #### `/auth/loigin`
+  #### `/auth/login`
 
   Posts login requests, passes restaurant id and name to local storage
 
