@@ -1,6 +1,6 @@
 # SafeRes API
 
-API server for 'SafeRes project
+API server for 'SafeRes' project
 
 <a href='https://github.com/ajbates2/SafeRes-client' target='_blank'>SafeRes Client Repo</a>
 
