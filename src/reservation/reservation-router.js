@@ -70,7 +70,7 @@ resRouter
                                         .json(resInfo)
                                 }
                             })
-                            .catch(next)
+                            .catch(err => res.json(err))
                     })
             })
     })
