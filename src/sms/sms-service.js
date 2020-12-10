@@ -14,9 +14,23 @@ const SmsService = {
             .create({
                 body: `Hi ${guest_name}, you're table is ready at DEMO RESTAURANT`,
                 from: twilioPhone,
-                to: guestNumber
+                to: guestNumber,
+                opts: { to: '+16127433196', from: twilioPhone, body: 'Invalid number' }
             })
-            .then(message => message)
+            .then((msg) => {
+                console.log(msg)
+                return {
+                    message: `${guest_name} was notified at ${msg.to}`,
+                    status: 201
+                }
+            })
+            .catch((err) => {
+                return {
+                    message: 'that number does not exist',
+                    code: err.code,
+                    status: err.status,
+                }
+            })
     },
     updateNotifyState(db, res_id) {
         return db
@@ -26,13 +40,16 @@ const SmsService = {
             })
             .where('res.id', res_id)
     },
-    reservationSms(resData) {
-        return client.messages
-            .create({
-                body: `Hi ${resData.guest_name}!, we are excited to see you at ${moment(resData.res_time, 'HH:mm:SS').format('hh:mm a')}, don't forget to bring your mask!`,
+    emergencyNotify(numbersToMessage, message) {
+        numbersToMessage.forEach(num => {
+            let sms = client.messages.create({
+                body: message,
                 from: twilioPhone,
-                to: phone(resData.phone_number)[0]
+                to: num,
             })
+                .then(sms => sms)
+                .done()
+        })
     }
 }
 

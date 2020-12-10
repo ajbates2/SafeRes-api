@@ -23,55 +23,38 @@ resRouter
 
         newRes.restaurant_id = req.user.id
 
-        DailyCountingService.hasDailyCount(
+        GuestService.checkIfGuestExists(
             req.app.get('db'),
-            newRes.res_date
+            newRes.phone_number
         )
-            .then(dayExists => {
-                if (!dayExists)
-                    return DailyCountingService.insertDailyCount(
+            .then(guestExists => {
+                if (!guestExists)
+                    GuestService.insertNewGuest(
                         req.app.get('db'),
-                        newRes.res_date
+                        newRes,
+                        newRes.restaurant_id
                     )
             })
             .then(() => {
-                GuestService.checkIfGuestExists(
+                ResService.insertNewRes(
                     req.app.get('db'),
-                    newRes.phone_number
+                    newRes
                 )
-                    .then(guestExists => {
-                        if (!guestExists)
-                            GuestService.insertNewGuest(
+                    .then(resInfo => {
+                        resInfo.walk_in
+                            ? GuestService.incrementVisits(
                                 req.app.get('db'),
-                                newRes,
+                                resInfo.phone_number,
+                                resInfo.res_date,
                                 newRes.restaurant_id
                             )
+                                .then(resInfo => res.status(201)
+                                    .json(resInfo))
+                            : res
+                                .status(201)
+                                .json(resInfo)
                     })
-                    .then(() => {
-                        ResService.insertNewRes(
-                            req.app.get('db'),
-                            newRes
-                        )
-                            .then(resInfo => {
-                                if (resInfo.walk_in) {
-                                    return GuestService.incrementVisits(
-                                        req.app.get('db'),
-                                        resInfo.phone_number,
-                                        resInfo.res_date,
-                                        newRes.restaurant_id
-                                    )
-                                        .then(resInfo => res.status(201)
-                                            .json(resInfo))
-                                }
-                                else {
-                                    SmsService.reservationSms(resInfo)
-                                    res
-                                        .status(201)
-                                        .json(resInfo)
-                                }
-                            })
-                            .catch(err => res.json(err))
-                    })
+                    .catch(next)
             })
     })
 
@@ -134,7 +117,7 @@ resRouter
                 )
                     .then(updatedRes => {
                         res
-                            .json({ status: `${updatedRes.guest_name} was updated` })
+                            .json({ message: `${updatedRes.guest_name} was updated` })
                             .status(200)
                     })
                     .catch(next)
@@ -171,7 +154,7 @@ resRouter
                     )
                 ])
                 res.json({
-                    status: `${resi.guest_name} was checked off`
+                    message: `${resi.guest_name} was checked off`
                 })
             })
             .catch(next)
@@ -197,7 +180,7 @@ resRouter
                         resi.phone_number
                     )])
                 res.json({
-                    status: `${resi.guest_name} was a no show`
+                    message: `${resi.guest_name} was a no show`
                 })
             })
             .catch(next)
@@ -223,7 +206,7 @@ resRouter
                         resi.phone_number
                     )])
                 res.json({
-                    status: `${resi.guest_name} cancelled`
+                    message: `${resi.guest_name} cancelled`
                 })
             })
             .catch(next)
@@ -239,7 +222,7 @@ resRouter
         )
             .then(resi => {
                 res.json({
-                    status: `${resi.guest_name} is waiting`
+                    message: `${resi.guest_name} is waiting`
                 })
             })
             .catch(next)

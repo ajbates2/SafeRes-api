@@ -10,23 +10,22 @@ smsRouter
     .all(requireAuth)
     .post(jsonBodyParser, (req, res, next) => {
         const { guest_name, res_id } = req.body
-        SmsService.updateNotifyState(
-            req.app.get('db'),
-            res_id
+        SmsService.notifyGuest(
+            req.params.phone_number,
+            guest_name
         )
-            .then(() => {
-                SmsService.notifyGuest(
-                    req.params.phone_number,
-                    guest_name
-                )
-                    .then(message => {
-                        res
-                            .json({
-                                status: `Message to ${guest_name} at ${message.to} was successful`
-                            })
-                            .status(201)
+            .then(msg => {
+                res
+                    .json({
+                        message: msg.message
                     })
-                    .catch(next)
+                    .status(msg.status)
+            })
+            .then(() => {
+                SmsService.updateNotifyState(
+                    req.app.get('db'),
+                    res_id
+                )
             })
     })
 
